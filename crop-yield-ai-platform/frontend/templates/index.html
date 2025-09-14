@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Crop Yield AI Platform{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section bg-gradient-success text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">AI-Powered Crop Yield Prediction</h1>
+                <p class="lead mb-4">
+                    Increase your farm productivity by 10%+ with data-driven insights. 
+                    Get personalized recommendations for irrigation, fertilization, and pest control.
+                </p>
+                <div class="d-grid gap-2 d-md-flex">
+                    <a href="{{ url_for('predict_yield_route') }}" class="btn btn-light btn-lg me-md-2">
+                        <i class="fas fa-chart-line"></i> Start Prediction
+                    </a>
+                    <a href="{{ url_for('universal_predict') }}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-calculator"></i> Quick Calculate
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="text-center">
+                    <i class="fas fa-seedling" style="font-size: 200px; opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">Platform Features</h2>
+            <p class="lead">Comprehensive AI-driven agricultural solutions</p>
+        </div>
+        
+        <div class="row g-4">
+            <!-- AI-Driven Features -->
+            <div class="col-md-6">
+                <div class="card h-100 border-success">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-robot"></i> AI-Driven Features
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <i class="fas fa-chart-bar text-success me-2"></i>
+                                Show scenarios for yields
+                            </li>
+                            <li class="list-group-item">
+                                <i class="fas fa-bug text-success me-2"></i>
+                                Pest & diseases detection by photo
+                            </li>
+                            <li class="list-group-item">
+                                <i class="fas fa-cloud-rain text-success me-2"></i>
+                                Real-time weather alerts
+                            </li>
+                            <li class="list-group-item">
+                                <i class="fas fa-leaf text-success me-2"></i>
+                                Smart crop suggestions based on land type
+                            </li>
+                            <li class="list-group-item">
+                                <i class="fas fa-flask text-success me-2"></i>
+                                Fertilizer & pesticide recommendations
+                            </li>
+                            <li class="list-group-item">
+                                <i class="fas fa-shield-alt text-success me-2"></i>
+                                Prevention and safety measures
+                            </li>
+                            <li class="list-group-item">
+                                <i class="fas fa-money-bill-trend-up text-success me-2"></i>
+                                Market price predictions
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Normal Features -->
+            <div class="col-md-6">
+                <div class="card h-100 border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-tools"></i> Standard Features
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <i class="fas fa-language text-primary me-2"></i>
+                                Regional language support (Hindi, Odia)
+                            </li>
+                            <li class="list-group-item">
+                                <i class="fas fa-microphone text-primary me-2"></i>
+                                Speech to text support
+                            </li>
+                            <li class="list-group-item">
+                                <i class="fas fa-calculator text-primary me-2"></i>
+                                Cost benefit calculator
+                            </li>
+                            <li class="list-group-item">
+                                <i class="fas fa-chart-line text-primary me-2"></i>
+                                Profit comparison graphs
+                            </li>
+                            <li class="list-group-item">
+                                <i class="fas fa-store text-primary me-2"></i>
+                                Market prices for seeds & utensils
+                            </li>
+                            <li class="list-group-item">
+                                <i class="fas fa-question-circle text-primary me-2"></i>
+                                Help system for farmers
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Platform Access Section -->
+<section class="access-section py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">Choose Your Access Mode</h2>
+            <p class="lead">Register for personalized experience or use universal access</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card border-success h-100">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-user-plus text-success mb-3" style="font-size: 3rem;"></i>
+                        <h4>Registered User</h4>
+                        <p class="text-muted">
+                            Store your field data, track predictions, and get personalized recommendations
+                        </p>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i> Save field descriptions</li>
+                            <li><i class="fas fa-check text-success me-2"></i> Track profit history</li>
+                            <li><i class="fas fa-check text-success me-2"></i> Personalized language</li>
+                            <li><i class="fas fa-check text-success me-2"></i> Field management</li>
+                        </ul>
+                        {% if not current_user.is_authenticated %}
+                        <a href="{{ url_for('register') }}" class="btn btn-success btn-lg">Register Now</a>
+                        {% else %}
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-success btn-lg">Go to Dashboard</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card border-primary h-100">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-globe text-primary mb-3" style="font-size: 3rem;"></i>
+                        <h4>Universal Access</h4>
+                        <p class="text-muted">
+                            Quick predictions without registration - fill details manually each time
+                        </p>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-primary me-2"></i> No registration required</li>
+                            <li><i class="fas fa-check text-primary me-2"></i> Instant predictions</li>
+                            <li><i class="fas fa-check text-primary me-2"></i> Basic recommendations</li>
+                            <li><i class="fas fa-check text-primary me-2"></i> Manual data entry</li>
+                        </ul>
+                        <a href="{{ url_for('universal_predict') }}" class="btn btn-primary btn-lg">Try Universal</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Weather & Market Updates -->
+<section class="updates-section py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card border-info">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-cloud"></i> Current Weather</h5>
+                    </div>
+                    <div class="card-body" id="weather-info">
+                        <div class="d-flex justify-content-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Market Prices</h5>
+                    </div>
+                    <div class="card-body" id="market-prices">
+                        <div class="d-flex justify-content-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.bg-gradient-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+.hero-section {
+    min-height: 500px;
+}
+</style>
+
+<script>
+// Load weather data
+fetch('/api/weather')
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('weather-info').innerHTML = `
+            <div class="row text-center">
+                <div class="col-6">
+                    <h6>Temperature</h6>
+                    <p class="h4">${data.temperature}°C</p>
+                </div>
+                <div class="col-6">
+                    <h6>Humidity</h6>
+                    <p class="h4">${data.humidity}%</p>
+                </div>
+            </div>
+            <div class="alert alert-info mt-3 mb-0">
+                <i class="fas fa-exclamation-triangle"></i> ${data.alert}
+            </div>
+        `;
+    })
+    .catch(error => {
+        document.getElementById('weather-info').innerHTML = '<p class="text-muted">Weather data unavailable</p>';
+    });
+
+// Load market prices
+fetch('/api/market_prices')
+    .then(response => response.json())
+    .then(data => {
+        let pricesHtml = '';
+        for (const [crop, details] of Object.entries(data)) {
+            const trendIcon = details.trend === 'up' ? 'fa-arrow-up text-success' : 
+                            details.trend === 'down' ? 'fa-arrow-down text-danger' : 
+                            'fa-minus text-secondary';
+            pricesHtml += `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-capitalize fw-bold">${crop}</span>
+                    <span>₹${details.price} <i class="fas ${trendIcon}"></i></span>
+                </div>
+            `;
+        }
+        document.getElementById('market-prices').innerHTML = pricesHtml;
+    })
+    .catch(error => {
+        document.getElementById('market-prices').innerHTML = '<p class="text-muted">Market data unavailable</p>';
+    });
+</script>
+{% endblock %}

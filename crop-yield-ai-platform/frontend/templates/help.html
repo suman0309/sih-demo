@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+
+{% block title %}Help & Support - Crop Yield AI Platform{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-center mb-4">
+                <i class="fas fa-question-circle text-info"></i> Help & Support System
+            </h2>
+        </div>
+    </div>
+    
+    <!-- Quick Help Cards -->
+    <div class="row mb-5">
+        <div class="col-md-3">
+            <div class="card border-success h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-line text-success mb-3" style="font-size: 2.5rem;"></i>
+                    <h6>How to Predict Yield</h6>
+                    <p class="small text-muted">Step-by-step guide to get accurate crop yield predictions</p>
+                    <a href="#prediction-help" class="btn btn-outline-success btn-sm">Learn More</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-primary h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-plus text-primary mb-3" style="font-size: 2.5rem;"></i>
+                    <h6>Account Management</h6>
+                    <p class="small text-muted">Register, manage fields, and track your farming data</p>
+                    <a href="#account-help" class="btn btn-outline-primary btn-sm">Learn More</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-warning h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-calculator text-warning mb-3" style="font-size: 2.5rem;"></i>
+                    <h6>Cost Calculator</h6>
+                    <p class="small text-muted">Calculate farming costs and expected profits</p>
+                    <a href="#calculator-help" class="btn btn-outline-warning btn-sm">Learn More</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-info h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-robot text-info mb-3" style="font-size: 2.5rem;"></i>
+                    <h6>AI Features</h6>
+                    <p class="small text-muted">Understand AI-powered recommendations and insights</p>
+                    <a href="#ai-help" class="btn btn-outline-info btn-sm">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FAQ Section -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-question"></i> Frequently Asked Questions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="faqAccordion">
+                        <!-- Prediction Help -->
+                        <div class="accordion-item" id="prediction-help">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#predictionCollapse">
+                                    <i class="fas fa-chart-line text-success me-2"></i>
+                                    How do I get accurate crop yield predictions?
+                                </button>
+                            </h2>
+                            <div id="predictionCollapse" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <ol>
+                                        <li><strong>Gather Information:</strong> Collect data about your field including soil type, pH, area, and current weather conditions.</li>
+                                        <li><strong>Choose Access Mode:</strong> Use registered account for personalized predictions or universal access for quick calculations.</li>
+                                        <li><strong>Enter Details:</strong> Fill in crop type, area, rainfall, temperature, soil pH, and fertilizer usage.</li>
+                                        <li><strong>Review Results:</strong> Our AI model will provide yield prediction with confidence level and recommendations.</li>
+                                        <li><strong>Follow Recommendations:</strong> Implement the suggested improvements for better yields.</li>
+                                    </ol>
+                                    <div class="alert alert-info mt-3">
+                                        <i class="fas fa-lightbulb"></i> <strong>Tip:</strong> More accurate input data leads to better predictions. Consider soil testing for precise pH values.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Account Help -->
+                        <div class="accordion-item" id="account-help">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#accountCollapse">
+                                    <i class="fas fa-user text-primary me-2"></i>
+                                    How do I manage my account and fields?
+                                </button>
+                            </h2>
+                            <div id="accountCollapse" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <h6>Registration Benefits:</h6>
+                                    <ul>
+                                        <li>Save multiple field descriptions</li>
+                                        <li>Track prediction history</li>
+                                        <li>Get personalized recommendations</li>
+                                        <li>Access advanced AI features</li>
+                                    </ul>
+                                    
+                                    <h6>Adding Fields:</h6>
+                                    <ol>
+                                        <li>Go to Dashboard → Add New Field</li>
+                                        <li>Enter field name, area, and crop type</li>
+                                        <li>Describe soil and weather conditions</li>
+                                        <li>Add last year's profit for comparison</li>
+                                    </ol>
+                                    
+                                    <div class="alert alert-success mt-3">
+                                        <i class="fas fa-check"></i> <strong>Regional Language:</strong> Set your preferred language (Hindi/Odia) in registration for localized experience.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Calculator Help -->
+                        <div class="accordion-item" id="calculator-help">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#calculatorCollapse">
+                                    <i class="fas fa-calculator text-warning me-2"></i>
+                                    How does the cost-benefit calculator work?
+                                </button>
+                            </h2>
+                            <div id="calculatorCollapse" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <h6>Input Categories:</h6>
+                                    <ul>
+                                        <li><strong>Seeds:</strong> Cost of seeds per hectare</li>
+                                        <li><strong>Fertilizers:</strong> Organic and chemical fertilizer costs</li>
+                                        <li><strong>Pesticides:</strong> Pest control and disease management</li>
+                                        <li><strong>Labor:</strong> Planting, maintenance, and harvesting labor</li>
+                                        <li><strong>Equipment:</strong> Machinery rental and fuel costs</li>
+                                    </ul>
+                                    
+                                    <h6>Calculation Formula:</h6>
+                                    <div class="bg-light p-3 rounded">
+                                        <code>
+                                            Net Profit = (Yield × Area × Market Price × Quality Factor) - Total Costs
+                                        </code>
+                                    </div>
+                                    
+                                    <div class="alert alert-warning mt-3">
+                                        <i class="fas fa-exclamation-triangle"></i> <strong>Note:</strong> Use AI yield predictions for more accurate profit calculations.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- AI Features Help -->
+                        <div class="accordion-item" id="ai-help">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#aiCollapse">
+                                    <i class="fas fa-robot text-info me-2"></i>
+                                    What AI features are available?
+                                </button>
+                            </h2>
+                            <div id="aiCollapse" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6>Current Features:</h6>
+                                            <ul class="text-success">
+                                                <li><i class="fas fa-check me-2"></i>Yield prediction with confidence levels</li>
+                                                <li><i class="fas fa-check me-2"></i>Personalized crop recommendations</li>
+                                                <li><i class="fas fa-check me-2"></i>Fertilizer and pesticide suggestions</li>
+                                                <li><i class="fas fa-check me-2"></i>Weather-based alerts</li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6>Coming Soon:</h6>
+                                            <ul class="text-muted">
+                                                <li><i class="fas fa-clock me-2"></i>Pest detection by photo</li>
+                                                <li><i class="fas fa-clock me-2"></i>Multiple yield scenarios</li>
+                                                <li><i class="fas fa-clock me-2"></i>Market price predictions</li>
+                                                <li><i class="fas fa-clock me-2"></i>Crop disease diagnosis</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="alert alert-primary mt-3">
+                                        <i class="fas fa-info-circle"></i> <strong>AI Accuracy:</strong> Our models are trained on regional agricultural data and continuously updated for better accuracy.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Troubleshooting -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#troubleshootCollapse">
+                                    <i class="fas fa-wrench text-danger me-2"></i>
+                                    Common Issues and Troubleshooting
+                                </button>
+                            </h2>
+                            <div id="troubleshootCollapse" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <h6>Login Issues:</h6>
+                                    <ul>
+                                        <li>Check username and password spelling</li>
+                                        <li>Clear browser cache and cookies</li>
+                                        <li>Try using universal access if login fails</li>
+                                    </ul>
+                                    
+                                    <h6>Prediction Accuracy:</h6>
+                                    <ul>
+                                        <li>Ensure all input fields are filled accurately</li>
+                                        <li>Use recent soil test results for pH values</li>
+                                        <li>Consider local weather variations</li>
+                                    </ul>
+                                    
+                                    <h6>Performance Issues:</h6>
+                                    <ul>
+                                        <li>Check internet connection</li>
+                                        <li>Use updated browser version</li>
+                                        <li>Disable browser extensions if needed</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contact Support -->
+        <div class="col-md-4">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-headset"></i> Contact Support
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6><i class="fas fa-phone text-success me-2"></i>Helpline</h6>
+                        <p class="mb-0">Toll Free: <strong>1800-XXX-XXXX</strong></p>
+                        <small class="text-muted">Mon-Fri: 9 AM - 6 PM</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6><i class="fas fa-envelope text-success me-2"></i>Email Support</h6>
+                        <p class="mb-0"><strong>support@cropaiplat.gov.od.in</strong></p>
+                        <small class="text-muted">Response within 24 hours</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6><i class="fas fa-map-marker-alt text-success me-2"></i>Office Address</h6>
+                        <p class="mb-0">
+                            Electronics & IT Department<br>
+                            Government of Odisha<br>
+                            Bhubaneswar - 751001
+                        </p>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="text-center">
+                        <h6>Regional Language Support</h6>
+                        <div class="btn-group-vertical d-grid gap-2">
+                            <button class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-language"></i> Hindi Support
+                            </button>
+                            <button class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-language"></i> Odia Support
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Tips -->
+            <div class="card border-info mt-4">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-lightbulb"></i> Quick Tips for Farmers
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="small mb-0">
+                        <li>Test soil pH regularly for accurate predictions</li>
+                        <li>Keep weather data updated in your records</li>
+                        <li>Use our cost calculator before planting seasons</li>
+                        <li>Save field data for future reference</li>
+                        <li>Follow AI recommendations for better yields</li>
+                        <li>Check market prices before harvesting</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

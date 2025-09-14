@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Universal Crop Prediction - Crop Yield AI Platform{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <h4>
+                    <i class="fas fa-globe"></i> Universal Access Mode
+                </h4>
+                <p class="mb-0">Quick predictions without registration. For personalized experience and saved data, <a href="{{ url_for('register') }}" class="alert-link">create an account</a>.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-center mb-4">
+                <i class="fas fa-calculator text-primary"></i> Quick Crop Yield Calculator
+            </h2>
+        </div>
+    </div>
+    
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Enter Basic Details</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('predict_yield_route') }}" method="POST" id="universalForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Crop Type</label>
+                                    <select name="crop_type" class="form-control" required>
+                                        <option value="rice" selected>Rice</option>
+                                        <option value="wheat">Wheat</option>
+                                        <option value="sugarcane">Sugarcane</option>
+                                        <option value="cotton">Cotton</option>
+                                        <option value="maize">Maize</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Area (Hectares)</label>
+                                    <input type="number" name="area" class="form-control" 
+                                           step="0.1" min="0.1" value="1.0" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Annual Rainfall (mm)</label>
+                                    <input type="number" name="rainfall" class="form-control" 
+                                           min="0" value="1000" required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Average Temperature (°C)</label>
+                                    <input type="number" name="temperature" class="form-control" 
+                                           step="0.1" min="0" max="50" value="25" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Soil pH</label>
+                                    <input type="number" name="soil_ph" class="form-control" 
+                                           step="0.1" min="0" max="14" value="7.0" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Fertilizer Usage (kg/hectare)</label>
+                                    <input type="number" name="fertilizer_usage" class="form-control" 
+                                           min="0" value="50" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Pest Control Level</label>
+                            <select name="pest_control" class="form-control" required>
+                                <option value="1">1 - No pest control</option>
+                                <option value="3">3 - Basic pest control</option>
+                                <option value="5" selected>5 - Moderate pest control</option>
+                                <option value="7">7 - Good pest control</option>
+                                <option value="10">10 - Excellent pest control</option>
+                            </select>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Soil Condition (Optional)</label>
+                                    <input type="text" name="soil_condition" class="form-control" 
+                                           placeholder="e.g., Well-drained, sandy loam">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Weather Condition (Optional)</label>
+                                    <input type="text" name="weather_condition" class="form-control" 
+                                           placeholder="e.g., Monsoon season">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <i class="fas fa-chart-bar"></i> Get Prediction
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Feature Comparison -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h4 class="text-center mb-4">Want More Features?</h4>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card border-light">
+                <div class="card-body text-center">
+                    <i class="fas fa-calculator text-primary mb-3" style="font-size: 3rem;"></i>
+                    <h5>Universal Access</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i> Basic predictions</li>
+                        <li><i class="fas fa-check text-success me-2"></i> No registration needed</li>
+                        <li><i class="fas fa-times text-danger me-2"></i> No data saving</li>
+                        <li><i class="fas fa-times text-danger me-2"></i> Limited features</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-plus text-success mb-3" style="font-size: 3rem;"></i>
+                    <h5>Registered User</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i> Advanced AI features</li>
+                        <li><i class="fas fa-check text-success me-2"></i> Save field data</li>
+                        <li><i class="fas fa-check text-success me-2"></i> Track history</li>
+                        <li><i class="fas fa-check text-success me-2"></i> Personalized recommendations</li>
+                    </ul>
+                    <a href="{{ url_for('register') }}" class="btn btn-success">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('universalForm').addEventListener('submit', function(e) {
+    const submitBtn = document.querySelector('button[type="submit"]');
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating...';
+    submitBtn.disabled = true;
+});
+</script>
+{% endblock %}

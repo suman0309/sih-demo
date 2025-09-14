@@ -1,0 +1,681 @@
+<!-- Language Selector Component -->
+<div class="language-selector" id="languageSelector">
+    <button class="language-toggle-btn" id="languageToggle" aria-label="Select Language">
+        <div class="current-language">
+            <span class="language-icon">🌍</span>
+            <span class="language-name" id="currentLanguageName">English</span>
+            <span class="language-code" id="currentLanguageCode">EN</span>
+        </div>
+        <div class="toggle-arrow">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </button>
+
+    <div class="language-dropdown" id="languageDropdown">
+        <div class="language-search-container">
+            <div class="search-input-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input 
+                    type="text" 
+                    id="languageSearch" 
+                    class="language-search" 
+                    placeholder="Search languages..."
+                    data-i18n="search_languages"
+                    autocomplete="off"
+                />
+            </div>
+        </div>
+
+        <div class="language-list" id="languageList">
+            <!-- Languages will be populated dynamically -->
+        </div>
+
+        <div class="language-footer">
+            <div class="powered-by">
+                <span>🌱 Agricultural AI Platform</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+:root {
+    /* Modern Agricultural Color Scheme */
+    --primary-green-dark: #2d5016;    /* Deep forest green */
+    --primary-green: #228B22;         /* Forest green */
+    --primary-green-light: #32CD32;   /* Lime green */
+    --secondary-brown: #8B4513;       /* Saddle brown */
+    --secondary-cream: #F5DEB3;       /* Wheat */
+    --secondary-sky: #87CEEB;         /* Sky blue */
+    --accent-orange: #FF8C00;         /* Dark orange */
+    --accent-red: #DC143C;           /* Crimson */
+    --background-main: #F5F5DC;       /* Beige */
+    
+    /* Component specific colors */
+    --bg-primary: var(--background-main);
+    --bg-secondary: rgba(45, 80, 22, 0.05);
+    --bg-hover: rgba(34, 139, 34, 0.1);
+    --border-color: rgba(45, 80, 22, 0.2);
+    --text-primary: var(--primary-green-dark);
+    --text-secondary: rgba(45, 80, 22, 0.7);
+    --text-muted: rgba(45, 80, 22, 0.5);
+    --shadow-light: 0 2px 8px rgba(45, 80, 22, 0.1);
+    --shadow-medium: 0 4px 20px rgba(45, 80, 22, 0.15);
+    --shadow-heavy: 0 8px 30px rgba(45, 80, 22, 0.25);
+}
+
+.language-selector {
+    position: relative;
+    display: inline-block;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    z-index: 1000;
+}
+
+.language-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: var(--bg-primary);
+    border: 1.5px solid var(--border-color);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 140px;
+    box-shadow: var(--shadow-light);
+    position: relative;
+    overflow: hidden;
+}
+
+.language-toggle-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-green), var(--primary-green-light));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.language-toggle-btn:hover::before,
+.language-toggle-btn.active::before {
+    transform: scaleX(1);
+}
+
+.language-toggle-btn:hover {
+    border-color: var(--primary-green);
+    box-shadow: var(--shadow-medium);
+    transform: translateY(-1px);
+}
+
+.language-toggle-btn.active {
+    border-color: var(--primary-green);
+    background: var(--bg-hover);
+}
+
+.current-language {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.language-icon {
+    font-size: 1.1rem;
+    opacity: 0.8;
+}
+
+.language-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.language-code {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    background: var(--bg-secondary);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.toggle-arrow {
+    margin-left: 0.5rem;
+    color: var(--text-secondary);
+    transition: transform 0.3s ease;
+}
+
+.language-toggle-btn.active .toggle-arrow {
+    transform: rotate(180deg);
+}
+
+.language-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1.5px solid var(--border-color);
+    border-radius: 16px;
+    margin-top: 0.5rem;
+    box-shadow: var(--shadow-heavy);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px) scale(0.95);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 280px;
+    max-height: 400px;
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.language-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+.language-search-container {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    border-radius: 16px 16px 0 0;
+}
+
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 0.75rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    z-index: 2;
+}
+
+.language-search {
+    width: 100%;
+    padding: 0.6rem 0.75rem 0.6rem 2.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: white;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.language-search:focus {
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 3px rgba(34, 139, 34, 0.1);
+}
+
+.language-search::placeholder {
+    color: var(--text-muted);
+}
+
+.language-list {
+    max-height: 280px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+}
+
+.language-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.language-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.language-list::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+.language-list::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-green);
+}
+
+.language-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(45, 80, 22, 0.05);
+    position: relative;
+}
+
+.language-option:last-child {
+    border-bottom: none;
+}
+
+.language-option:hover {
+    background: var(--bg-hover);
+    transform: translateX(2px);
+}
+
+.language-option.active {
+    background: var(--bg-hover);
+    border-left: 3px solid var(--primary-green);
+}
+
+.language-option.active::after {
+    content: '✓';
+    position: absolute;
+    right: 1rem;
+    color: var(--primary-green);
+    font-weight: bold;
+}
+
+.language-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    flex: 1;
+}
+
+.language-native {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    direction: ltr; /* Always LTR for consistency in dropdown */
+}
+
+.language-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.language-english {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.language-region {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    background: var(--bg-secondary);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+}
+
+.language-rtl-indicator {
+    font-size: 0.7rem;
+    background: var(--accent-orange);
+    color: white;
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.language-footer {
+    padding: 0.75rem 1rem;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    border-radius: 0 0 16px 16px;
+}
+
+.powered-by {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.no-results {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.no-results-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+.no-results-text {
+    font-size: 0.9rem;
+}
+
+/* RTL Support */
+[dir="rtl"] .language-selector {
+    direction: rtl;
+}
+
+[dir="rtl"] .current-language {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .toggle-arrow {
+    margin-right: 0.5rem;
+    margin-left: 0;
+}
+
+[dir="rtl"] .search-icon {
+    right: 0.75rem;
+    left: auto;
+}
+
+[dir="rtl"] .language-search {
+    padding: 0.6rem 2.25rem 0.6rem 0.75rem;
+}
+
+[dir="rtl"] .language-option:hover {
+    transform: translateX(-2px);
+}
+
+[dir="rtl"] .language-option.active {
+    border-left: none;
+    border-right: 3px solid var(--primary-green);
+}
+
+[dir="rtl"] .language-option.active::after {
+    right: auto;
+    left: 1rem;
+}
+
+/* Animation classes */
+.language-option.highlight {
+    animation: highlightPulse 0.6s ease-in-out;
+}
+
+@keyframes highlightPulse {
+    0%, 100% { 
+        background: var(--bg-hover); 
+        transform: scale(1);
+    }
+    50% { 
+        background: rgba(34, 139, 34, 0.2); 
+        transform: scale(1.02);
+    }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .language-dropdown {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        right: auto;
+        transform: translate(-50%, -50%) scale(0.95);
+        max-width: 90vw;
+        max-height: 70vh;
+    }
+    
+    .language-dropdown.show {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    
+    .language-toggle-btn {
+        min-width: 120px;
+        padding: 0.6rem 0.8rem;
+    }
+    
+    .language-name {
+        font-size: 0.85rem;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .language-toggle-btn {
+        border-width: 2px;
+    }
+    
+    .language-option.active {
+        border-left-width: 4px;
+    }
+    
+    [dir="rtl"] .language-option.active {
+        border-right-width: 4px;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+</style>
+
+<script>
+class LanguageSelector {
+    constructor() {
+        this.isOpen = false;
+        this.languages = [];
+        this.filteredLanguages = [];
+        this.searchQuery = '';
+        
+        this.initElements();
+        this.bindEvents();
+        this.loadLanguages();
+    }
+
+    initElements() {
+        this.selector = document.getElementById('languageSelector');
+        this.toggleBtn = document.getElementById('languageToggle');
+        this.dropdown = document.getElementById('languageDropdown');
+        this.searchInput = document.getElementById('languageSearch');
+        this.languageList = document.getElementById('languageList');
+        this.currentName = document.getElementById('currentLanguageName');
+        this.currentCode = document.getElementById('currentLanguageCode');
+    }
+
+    bindEvents() {
+        // Toggle dropdown
+        this.toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggle();
+        });
+
+        // Search functionality
+        this.searchInput.addEventListener('input', (e) => {
+            this.searchQuery = e.target.value.toLowerCase();
+            this.filterLanguages();
+        });
+
+        // Close on outside click
+        document.addEventListener('click', (e) => {
+            if (!this.selector.contains(e.target)) {
+                this.close();
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (this.isOpen) {
+                switch(e.key) {
+                    case 'Escape':
+                        this.close();
+                        break;
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        this.navigateOptions(1);
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        this.navigateOptions(-1);
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        this.selectFocusedOption();
+                        break;
+                }
+            }
+        });
+
+        // Listen for language changes from i18n
+        document.addEventListener('languageChanged', (e) => {
+            this.updateCurrentDisplay(e.detail.languageInfo);
+        });
+    }
+
+    async loadLanguages() {
+        try {
+            // Wait for i18n to be ready
+            if (window.i18n && window.i18n.getAvailableLanguages) {
+                this.languages = window.i18n.getAvailableLanguages();
+                this.filteredLanguages = [...this.languages];
+                this.renderLanguageList();
+                this.updateCurrentDisplay(window.i18n.getCurrentLanguageInfo());
+            } else {
+                // Retry after a short delay
+                setTimeout(() => this.loadLanguages(), 100);
+            }
+        } catch (error) {
+            console.error('Failed to load languages:', error);
+        }
+    }
+
+    toggle() {
+        if (this.isOpen) {
+            this.close();
+        } else {
+            this.open();
+        }
+    }
+
+    open() {
+        this.isOpen = true;
+        this.toggleBtn.classList.add('active');
+        this.dropdown.classList.add('show');
+        this.searchInput.focus();
+        
+        // Reset search
+        this.searchInput.value = '';
+        this.searchQuery = '';
+        this.filterLanguages();
+    }
+
+    close() {
+        this.isOpen = false;
+        this.toggleBtn.classList.remove('active');
+        this.dropdown.classList.remove('show');
+    }
+
+    filterLanguages() {
+        if (!this.searchQuery.trim()) {
+            this.filteredLanguages = [...this.languages];
+        } else {
+            this.filteredLanguages = this.languages.filter(lang => 
+                lang.native.toLowerCase().includes(this.searchQuery) ||
+                lang.english.toLowerCase().includes(this.searchQuery) ||
+                lang.region.toLowerCase().includes(this.searchQuery) ||
+                lang.code.toLowerCase().includes(this.searchQuery)
+            );
+        }
+        
+        this.renderLanguageList();
+    }
+
+    renderLanguageList() {
+        if (this.filteredLanguages.length === 0) {
+            this.languageList.innerHTML = `
+                <div class="no-results">
+                    <div class="no-results-icon">🔍</div>
+                    <div class="no-results-text">No languages found</div>
+                </div>
+            `;
+            return;
+        }
+
+        const currentLang = window.i18n?.currentLanguage || 'en';
+        
+        this.languageList.innerHTML = this.filteredLanguages.map(lang => `
+            <div class="language-option ${lang.code === currentLang ? 'active' : ''}" 
+                 data-lang-code="${lang.code}"
+                 role="option"
+                 tabindex="0">
+                <div class="language-info">
+                    <div class="language-native" dir="${lang.isRTL ? 'rtl' : 'ltr'}">
+                        ${lang.native}
+                    </div>
+                    <div class="language-meta">
+                        <span class="language-english">${lang.english}</span>
+                        <span class="language-region">${lang.region}</span>
+                        ${lang.isRTL ? '<span class="language-rtl-indicator">RTL</span>' : ''}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        // Bind click events for language options
+        this.languageList.querySelectorAll('.language-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const langCode = option.dataset.langCode;
+                this.selectLanguage(langCode);
+            });
+        });
+    }
+
+    selectLanguage(langCode) {
+        if (window.i18n && window.i18n.changeLanguage) {
+            window.i18n.changeLanguage(langCode);
+            
+            // Add highlight animation
+            const option = this.languageList.querySelector(`[data-lang-code="${langCode}"]`);
+            if (option) {
+                option.classList.add('highlight');
+                setTimeout(() => option.classList.remove('highlight'), 600);
+            }
+            
+            this.close();
+        }
+    }
+
+    updateCurrentDisplay(languageInfo) {
+        if (languageInfo) {
+            this.currentName.textContent = languageInfo.native || languageInfo.english || 'English';
+            this.currentCode.textContent = (languageInfo.code || 'EN').toUpperCase();
+        }
+    }
+
+    navigateOptions(direction) {
+        const options = this.languageList.querySelectorAll('.language-option');
+        if (options.length === 0) return;
+
+        const currentFocused = this.languageList.querySelector('.language-option:focus');
+        let newIndex = 0;
+
+        if (currentFocused) {
+            const currentIndex = Array.from(options).indexOf(currentFocused);
+            newIndex = currentIndex + direction;
+            
+            if (newIndex < 0) newIndex = options.length - 1;
+            if (newIndex >= options.length) newIndex = 0;
+        }
+
+        options[newIndex].focus();
+    }
+
+    selectFocusedOption() {
+        const focused = this.languageList.querySelector('.language-option:focus');
+        if (focused) {
+            const langCode = focused.dataset.langCode;
+            this.selectLanguage(langCode);
+        }
+    }
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    window.languageSelector = new LanguageSelector();
+});
+</script>

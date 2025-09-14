@@ -1,0 +1,688 @@
+{% extends "base.html" %}
+
+{% block title %}AI Prediction Results - CropAI Platform{% endblock %}
+
+{% block extra_head %}
+<!-- Three.js and Chart.js for visualizations -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    body {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+        color: white;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .result-hero {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.1));
+        padding: 4rem 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .result-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(16,185,129,0.1)" points="0,0 1000,300 1000,1000 0,700"/></svg>');
+        z-index: 1;
+    }
+    
+    .result-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .yield-display {
+        font-size: 5rem;
+        font-weight: 900;
+        background: linear-gradient(45deg, #10b981, #34d399, #6ee7b7);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 2rem 0;
+        text-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+    }
+    
+    .confidence-meter {
+        width: 200px;
+        height: 200px;
+        margin: 2rem auto;
+        position: relative;
+    }
+    
+    .confidence-circle {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: conic-gradient(
+            from 0deg,
+            #10b981 0deg,
+            #10b981 {{ result.confidence * 3.6 }}deg,
+            rgba(255,255,255,0.1) {{ result.confidence * 3.6 }}deg,
+            rgba(255,255,255,0.1) 360deg
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    
+    .confidence-inner {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+    
+    .confidence-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #10b981;
+    }
+    
+    .insights-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin: 4rem 0;
+    }
+    
+    .insight-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .insight-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(45deg, #10b981, #34d399, #6ee7b7);
+    }
+    
+    .insight-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(16, 185, 129, 0.2);
+    }
+    
+    .card-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(45deg, #10b981, #34d399);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        animation: pulse 2s infinite;
+    }
+    
+    .recommendations-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .recommendation-item {
+        background: rgba(255, 255, 255, 0.03);
+        border-left: 4px solid #10b981;
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 0 10px 10px 0;
+        transition: all 0.3s ease;
+    }
+    
+    .recommendation-item:hover {
+        background: rgba(16, 185, 129, 0.1);
+        transform: translateX(5px);
+    }
+    
+    .priority-high { border-left-color: #ef4444; }
+    .priority-medium { border-left-color: #f59e0b; }
+    .priority-low { border-left-color: #10b981; }
+    
+    .model-comparison {
+        display: flex;
+        gap: 1rem;
+        margin: 2rem 0;
+        flex-wrap: wrap;
+    }
+    
+    .model-result {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+        flex: 1;
+        min-width: 150px;
+    }
+    
+    .model-name {
+        font-size: 0.9rem;
+        color: #10b981;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+    
+    .model-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+    }
+    
+    .profit-visualization {
+        position: relative;
+        height: 300px;
+        margin: 2rem 0;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 15px;
+        padding: 1rem;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin: 3rem 0;
+    }
+    
+    .action-btn {
+        background: linear-gradient(45deg, #10b981, #059669);
+        border: none;
+        border-radius: 25px;
+        padding: 1rem 2rem;
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .action-btn.secondary {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .action-btn.secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .floating-elements {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+    }
+    
+    .chart-container {
+        position: relative;
+        height: 300px;
+        margin: 1rem 0;
+    }
+    
+    .metric-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #10b981;
+        margin: 0.5rem 0;
+    }
+    
+    .metric-label {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<canvas class="floating-elements" id="floatingCanvas"></canvas>
+
+<!-- Result Hero Section -->
+<div class="result-hero">
+    <div class="container">
+        <div class="result-content">
+            <h1 class="display-4 fw-bold mb-4">🎯 AI Prediction Complete</h1>
+            <p class="lead">{{ result.crop_type.title() }} Yield Prediction for {{ result.area }} Hectares</p>
+            
+            <div class="yield-display">{{ result.predicted_yield }} tons/ha</div>
+            
+            <div class="confidence-meter">
+                <div class="confidence-circle">
+                    <div class="confidence-inner">
+                        <div class="confidence-value">{{ result.confidence }}%</div>
+                        <div class="small">Confidence</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <!-- Model Comparison -->
+    {% if result.model_predictions %}
+    <div class="insight-card mb-4">
+        <div class="card-icon">🤖</div>
+        <h3>AI Model Ensemble Results</h3>
+        <p class="mb-3">Multiple machine learning models working together for accurate predictions:</p>
+        
+        <div class="model-comparison">
+            {% for model_name, prediction in result.model_predictions.items() %}
+            <div class="model-result">
+                <div class="model-name">{{ model_name.replace('_', ' ').title() }}</div>
+                <div class="model-value">{{ "%.2f"|format(prediction) }} tons/ha</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Insights Grid -->
+    <div class="insights-grid">
+        <!-- Yield Analysis -->
+        <div class="insight-card">
+            <div class="card-icon">📈</div>
+            <h3>Yield Analysis</h3>
+            
+            <div class="row text-center mt-3">
+                <div class="col-6">
+                    <div class="metric-label">Total Production</div>
+                    <div class="metric-value">{{ "%.1f"|format(result.predicted_yield * result.area) }}</div>
+                    <small class="text-muted">tons</small>
+                </div>
+                <div class="col-6">
+                    <div class="metric-label">Performance</div>
+                    <div class="metric-value">
+                        {% if result.predicted_yield >= 6 %}
+                            <span class="text-success">Excellent</span>
+                        {% elif result.predicted_yield >= 4 %}
+                            <span class="text-warning">Good</span>
+                        {% else %}
+                            <span class="text-danger">Needs Improvement</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="yieldChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Market Insights -->
+        {% if result.market_insights %}
+        <div class="insight-card">
+            <div class="card-icon">💰</div>
+            <h3>Financial Projections</h3>
+            
+            <div class="row text-center mt-3">
+                <div class="col-6">
+                    <div class="metric-label">Gross Revenue</div>
+                    <div class="metric-value">₹{{ "{:,.0f}"|format(result.market_insights.gross_revenue) }}</div>
+                </div>
+                <div class="col-6">
+                    <div class="metric-label">Net Profit</div>
+                    <div class="metric-value 
+                        {% if result.market_insights.net_profit > 0 %}text-success
+                        {% else %}text-danger{% endif %}">
+                        ₹{{ "{:,.0f}"|format(result.market_insights.net_profit) }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row text-center mt-2">
+                <div class="col-12">
+                    <div class="metric-label">Profit Margin</div>
+                    <div class="metric-value">{{ "%.1f"|format(result.market_insights.profit_margin) }}%</div>
+                </div>
+            </div>
+            
+            <div class="profit-visualization">
+                <canvas id="profitChart"></canvas>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- AI Recommendations -->
+        <div class="insight-card" style="grid-column: 1 / -1;">
+            <div class="card-icon">💡</div>
+            <h3>AI-Powered Recommendations</h3>
+            <p class="mb-4">Personalized insights to optimize your crop yield:</p>
+            
+            <ul class="recommendations-list">
+                {% for recommendation in result.recommendations %}
+                <li class="recommendation-item priority-{{ recommendation.priority|default('medium') }}">
+                    <div class="d-flex align-items-start">
+                        <div class="me-3">
+                            {% if recommendation.priority == 'high' %}
+                                <i class="fas fa-exclamation-triangle text-danger"></i>
+                            {% elif recommendation.priority == 'medium' %}
+                                <i class="fas fa-info-circle text-warning"></i>
+                            {% else %}
+                                <i class="fas fa-check-circle text-success"></i>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-2">{{ recommendation.category|default('General')|title }} 
+                                <span class="badge bg-{{ recommendation.priority|default('secondary') }} ms-2">
+                                    {{ recommendation.priority|default('medium')|title }}
+                                </span>
+                            </h6>
+                            <p class="mb-1">{{ recommendation.message }}</p>
+                            {% if recommendation.action %}
+                            <small class="text-muted">
+                                <i class="fas fa-arrow-right me-1"></i>{{ recommendation.action }}
+                            </small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="{{ url_for('predict_yield_route') }}" class="action-btn">
+            <i class="fas fa-redo"></i> New Prediction
+        </a>
+        
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('dashboard') }}" class="action-btn secondary">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        {% endif %}
+        
+        <a href="{{ url_for('cost_benefit_calculator') }}" class="action-btn secondary">
+            <i class="fas fa-calculator"></i> Cost Analysis
+        </a>
+        
+        <button onclick="downloadReport()" class="action-btn secondary">
+            <i class="fas fa-download"></i> Download Report
+        </button>
+        
+        <button onclick="window.print()" class="action-btn secondary">
+            <i class="fas fa-print"></i> Print Results
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Initialize visualizations
+document.addEventListener('DOMContentLoaded', function() {
+    initFloatingElements();
+    initYieldChart();
+    {% if result.market_insights %}
+    initProfitChart();
+    {% endif %}
+    animateResults();
+});
+
+function initFloatingElements() {
+    const canvas = document.getElementById('floatingCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    const particles = [];
+    for(let i = 0; i < 50; i++) {
+        particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 3 + 1,
+            dx: (Math.random() - 0.5) * 2,
+            dy: (Math.random() - 0.5) * 2,
+            opacity: Math.random() * 0.5 + 0.2
+        });
+    }
+    
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        particles.forEach(particle => {
+            particle.x += particle.dx;
+            particle.y += particle.dy;
+            
+            if(particle.x < 0 || particle.x > canvas.width) particle.dx *= -1;
+            if(particle.y < 0 || particle.y > canvas.height) particle.dy *= -1;
+            
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(16, 185, 129, ${particle.opacity})`;
+            ctx.fill();
+        });
+        
+        requestAnimationFrame(animate);
+    }
+    
+    animate();
+}
+
+function initYieldChart() {
+    const ctx = document.getElementById('yieldChart').getContext('2d');
+    
+    // Sample data for comparison
+    const avgYields = {
+        'rice': 4.5,
+        'wheat': 3.2,
+        'sugarcane': 55,
+        'cotton': 2.1,
+        'maize': 5.8
+    };
+    
+    const currentYield = {{ result.predicted_yield }};
+    const avgYield = avgYields['{{ result.crop_type }}'] || 4.0;
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Your Prediction', 'Regional Average'],
+            datasets: [{
+                label: 'Yield (tons/ha)',
+                data: [currentYield, avgYield],
+                backgroundColor: [
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(59, 130, 246, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(16, 185, 129, 1)',
+                    'rgba(59, 130, 246, 1)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: '#10b981',
+                    borderWidth: 1
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: 'white' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                },
+                x: {
+                    ticks: { color: 'white' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                }
+            }
+        }
+    });
+}
+
+{% if result.market_insights %}
+function initProfitChart() {
+    const ctx = document.getElementById('profitChart').getContext('2d');
+    
+    const revenue = {{ result.market_insights.gross_revenue }};
+    const costs = {{ result.market_insights.total_cost }};
+    const profit = {{ result.market_insights.net_profit }};
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Total Costs', 'Net Profit'],
+            datasets: [{
+                data: [costs, Math.max(0, profit)],
+                backgroundColor: [
+                    'rgba(239, 68, 68, 0.8)',
+                    'rgba(16, 185, 129, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(239, 68, 68, 1)',
+                    'rgba(16, 185, 129, 1)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: { color: 'white' }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: '#10b981',
+                    borderWidth: 1,
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ₹' + context.raw.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+{% endif %}
+
+function animateResults() {
+    // Animate metric values
+    const metricValues = document.querySelectorAll('.metric-value');
+    metricValues.forEach((element, index) => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            element.style.transition = 'all 0.6s ease';
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+        }, index * 200);
+    });
+    
+    // Animate recommendation items
+    const recommendations = document.querySelectorAll('.recommendation-item');
+    recommendations.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateX(-20px)';
+        
+        setTimeout(() => {
+            item.style.transition = 'all 0.4s ease';
+            item.style.opacity = '1';
+            item.style.transform = 'translateX(0)';
+        }, 1000 + (index * 150));
+    });
+}
+
+function downloadReport() {
+    // Create a comprehensive report
+    const reportData = {
+        prediction: {
+            crop_type: '{{ result.crop_type }}',
+            predicted_yield: {{ result.predicted_yield }},
+            confidence: {{ result.confidence }},
+            area: {{ result.area }}
+        },
+        {% if result.market_insights %}
+        financial: {
+            gross_revenue: {{ result.market_insights.gross_revenue }},
+            total_cost: {{ result.market_insights.total_cost }},
+            net_profit: {{ result.market_insights.net_profit }},
+            profit_margin: {{ result.market_insights.profit_margin }}
+        },
+        {% endif %}
+        recommendations: {{ result.recommendations|tojson }},
+        generated_at: new Date().toISOString()
+    };
+    
+    // Create and download JSON report
+    const dataStr = JSON.stringify(reportData, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `crop-yield-report-${Date.now()}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+}
+
+// Handle window resize for canvas
+window.addEventListener('resize', () => {
+    const canvas = document.getElementById('floatingCanvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+</script>
+{% endblock %}

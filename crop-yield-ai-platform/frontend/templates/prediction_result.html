@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction Results - Crop Yield AI Platform{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-center mb-4">
+                <i class="fas fa-chart-line text-success"></i> Crop Yield Prediction Results
+            </h2>
+        </div>
+    </div>
+    
+    <!-- Main Prediction Result -->
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-success">
+                <div class="card-header bg-success text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-seedling"></i> Predicted Yield for {{ result.crop_type.title() }}
+                    </h4>
+                </div>
+                <div class="card-body text-center p-5">
+                    <div class="display-1 text-success fw-bold">
+                        {{ result.predicted_yield }}
+                    </div>
+                    <h3 class="text-success">tons/hectare</h3>
+                    <div class="progress mt-3 mb-3" style="height: 20px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {{ result.confidence }}%" 
+                             aria-valuenow="{{ result.confidence }}" 
+                             aria-valuemin="0" aria-valuemax="100">
+                            {{ result.confidence }}% Confidence
+                        </div>
+                    </div>
+                    <p class="text-muted">
+                        Our AI model is {{ result.confidence }}% confident in this prediction
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- AI Recommendations -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-robot"></i> AI-Powered Recommendations
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for recommendation in result.recommendations %}
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-lightbulb text-warning me-3 mt-1"></i>
+                                <div>
+                                    <p class="mb-0">{{ recommendation }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Detailed Analysis -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-chart-bar"></i> Yield Analysis
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Performance Category</label>
+                        {% if result.predicted_yield >= 8 %}
+                            <div class="badge bg-success fs-6">Excellent Yield</div>
+                        {% elif result.predicted_yield >= 6 %}
+                            <div class="badge bg-warning fs-6">Good Yield</div>
+                        {% elif result.predicted_yield >= 4 %}
+                            <div class="badge bg-info fs-6">Average Yield</div>
+                        {% else %}
+                            <div class="badge bg-danger fs-6">Below Average</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Estimated Annual Production</label>
+                        <div class="fw-bold">{{ (result.predicted_yield * 1)|round(1) }} tons</div>
+                        <small class="text-muted">(assuming 1 hectare area)</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Market Value Estimate</label>
+                        {% set crop_prices = {'rice': 2500, 'wheat': 2200, 'sugarcane': 350, 'cotton': 6800, 'maize': 1800} %}
+                        {% set estimated_value = (result.predicted_yield * 10 * crop_prices.get(result.crop_type, 2000)) %}
+                        <div class="fw-bold text-success">₹{{ "{:,}".format(estimated_value|int) }}</div>
+                        <small class="text-muted">Based on current market rates</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> Important Notes
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Weather Dependency:</strong> Actual yields may vary based on unpredictable weather conditions.
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-bug me-2"></i>
+                        <strong>Pest Management:</strong> Regular monitoring and preventive measures are crucial.
+                    </div>
+                    
+                    <div class="alert alert-success">
+                        <i class="fas fa-flask me-2"></i>
+                        <strong>Soil Health:</strong> Follow soil testing recommendations for optimal results.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <div class="btn-group" role="group">
+                <a href="{{ url_for('predict_yield_route') }}" class="btn btn-outline-success">
+                    <i class="fas fa-redo"></i> New Prediction
+                </a>
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                {% endif %}
+                <a href="{{ url_for('cost_benefit_calculator') }}" class="btn btn-outline-warning">
+                    <i class="fas fa-calculator"></i> Cost Analysis
+                </a>
+                <button onclick="window.print()" class="btn btn-outline-info">
+                    <i class="fas fa-print"></i> Print Report
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Additional AI Features -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card border-secondary">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-plus-circle"></i> Additional AI Features (Coming Soon)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="p-3">
+                                <i class="fas fa-camera text-muted mb-2" style="font-size: 2rem;"></i>
+                                <h6 class="text-muted">Pest Detection</h6>
+                                <p class="small text-muted">Upload crop photos for disease analysis</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3">
+                                <i class="fas fa-cloud-rain text-muted mb-2" style="font-size: 2rem;"></i>
+                                <h6 class="text-muted">Weather Alerts</h6>
+                                <p class="small text-muted">Real-time weather notifications</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3">
+                                <i class="fas fa-chart-area text-muted mb-2" style="font-size: 2rem;"></i>
+                                <h6 class="text-muted">Yield Scenarios</h6>
+                                <p class="small text-muted">Multiple prediction scenarios</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3">
+                                <i class="fas fa-money-bill-trend-up text-muted mb-2" style="font-size: 2rem;"></i>
+                                <h6 class="text-muted">Price Forecast</h6>
+                                <p class="small text-muted">Market price predictions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .btn-group, .card-header, nav, footer {
+        display: none !important;
+    }
+}
+</style>
+{% endblock %}

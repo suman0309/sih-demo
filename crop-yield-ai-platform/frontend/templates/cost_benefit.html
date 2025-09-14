@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+
+{% block title %}Cost Benefit Calculator - Crop Yield AI Platform{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-center mb-4">
+                <i class="fas fa-calculator text-warning"></i> Cost Benefit Calculator
+            </h2>
+        </div>
+    </div>
+    
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Calculate Your Farming Costs and Profits</h5>
+                </div>
+                <div class="card-body">
+                    <form id="costCalculatorForm">
+                        <div class="row">
+                            <!-- Input Costs -->
+                            <div class="col-md-6">
+                                <h6 class="text-warning mb-3">
+                                    <i class="fas fa-money-bill-alt"></i> Input Costs
+                                </h6>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Crop Type</label>
+                                    <select id="cropType" class="form-control">
+                                        <option value="rice">Rice</option>
+                                        <option value="wheat">Wheat</option>
+                                        <option value="sugarcane">Sugarcane</option>
+                                        <option value="cotton">Cotton</option>
+                                        <option value="maize">Maize</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Area (Hectares)</label>
+                                    <input type="number" id="area" class="form-control" value="1" min="0.1" step="0.1">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Seeds Cost (₹)</label>
+                                    <input type="number" id="seedsCost" class="form-control" value="5000" min="0">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Fertilizer Cost (₹)</label>
+                                    <input type="number" id="fertilizerCost" class="form-control" value="8000" min="0">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Pesticide Cost (₹)</label>
+                                    <input type="number" id="pesticideCost" class="form-control" value="3000" min="0">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Labor Cost (₹)</label>
+                                    <input type="number" id="laborCost" class="form-control" value="15000" min="0">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Equipment/Machinery (₹)</label>
+                                    <input type="number" id="equipmentCost" class="form-control" value="5000" min="0">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Other Costs (₹)</label>
+                                    <input type="number" id="otherCosts" class="form-control" value="2000" min="0">
+                                </div>
+                            </div>
+                            
+                            <!-- Output/Revenue -->
+                            <div class="col-md-6">
+                                <h6 class="text-success mb-3">
+                                    <i class="fas fa-chart-line"></i> Expected Output
+                                </h6>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Expected Yield (tons/hectare)</label>
+                                    <input type="number" id="expectedYield" class="form-control" value="6" min="0" step="0.1">
+                                    <div class="form-text">Use our AI prediction for accurate estimates</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Market Price (₹ per quintal)</label>
+                                    <input type="number" id="marketPrice" class="form-control" value="2500" min="0">
+                                    <div class="form-text">Current market price will be loaded automatically</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Quality Factor (%)</label>
+                                    <select id="qualityFactor" class="form-control">
+                                        <option value="0.7">70% - Below average quality</option>
+                                        <option value="0.85">85% - Average quality</option>
+                                        <option value="1.0" selected>100% - Good quality</option>
+                                        <option value="1.15">115% - Premium quality</option>
+                                    </select>
+                                </div>
+                                
+                                <hr>
+                                
+                                <!-- Results -->
+                                <div id="calculationResults" class="mt-4">
+                                    <h6 class="text-primary mb-3">
+                                        <i class="fas fa-chart-bar"></i> Calculation Results
+                                    </h6>
+                                    
+                                    <div class="card border-primary">
+                                        <div class="card-body">
+                                            <div class="row text-center">
+                                                <div class="col-6">
+                                                    <h6 class="text-danger">Total Costs</h6>
+                                                    <h4 id="totalCosts" class="text-danger">₹0</h4>
+                                                </div>
+                                                <div class="col-6">
+                                                    <h6 class="text-success">Total Revenue</h6>
+                                                    <h4 id="totalRevenue" class="text-success">₹0</h4>
+                                                </div>
+                                            </div>
+                                            
+                                            <hr>
+                                            
+                                            <div class="text-center">
+                                                <h6>Net Profit</h6>
+                                                <h3 id="netProfit" class="fw-bold">₹0</h3>
+                                                <p id="profitMargin" class="text-muted">0% margin</p>
+                                            </div>
+                                            
+                                            <div class="progress mt-3">
+                                                <div id="profitBar" class="progress-bar" style="width: 50%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="text-center">
+                            <button type="button" onclick="calculateCostBenefit()" class="btn btn-warning btn-lg px-5">
+                                <i class="fas fa-calculator"></i> Calculate Profit
+                            </button>
+                            <button type="button" onclick="resetCalculator()" class="btn btn-outline-secondary">
+                                <i class="fas fa-undo"></i> Reset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tips and Recommendations -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb"></i> Cost Optimization Tips
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6 class="text-info">
+                                <i class="fas fa-seedling"></i> Seeds & Planting
+                            </h6>
+                            <ul class="small">
+                                <li>Use certified high-yield variety seeds</li>
+                                <li>Optimal seed spacing reduces waste</li>
+                                <li>Treat seeds to prevent diseases</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <h6 class="text-info">
+                                <i class="fas fa-flask"></i> Fertilizers & Chemicals
+                            </h6>
+                            <ul class="small">
+                                <li>Soil testing for precise fertilizer needs</li>
+                                <li>Organic fertilizers for long-term soil health</li>
+                                <li>Integrated pest management</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <h6 class="text-info">
+                                <i class="fas fa-users"></i> Labor & Equipment
+                            </h6>
+                            <ul class="small">
+                                <li>Mechanization for large areas</li>
+                                <li>Cooperative farming for cost sharing</li>
+                                <li>Timely operations reduce losses</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load current market prices
+function loadMarketPrices() {
+    fetch('/api/market_prices')
+        .then(response => response.json())
+        .then(data => {
+            const cropType = document.getElementById('cropType').value;
+            if (data[cropType]) {
+                document.getElementById('marketPrice').value = data[cropType].price;
+                calculateCostBenefit();
+            }
+        })
+        .catch(error => console.log('Market data unavailable'));
+}
+
+function calculateCostBenefit() {
+    // Get all input values
+    const area = parseFloat(document.getElementById('area').value) || 0;
+    const seedsCost = parseFloat(document.getElementById('seedsCost').value) || 0;
+    const fertilizerCost = parseFloat(document.getElementById('fertilizerCost').value) || 0;
+    const pesticideCost = parseFloat(document.getElementById('pesticideCost').value) || 0;
+    const laborCost = parseFloat(document.getElementById('laborCost').value) || 0;
+    const equipmentCost = parseFloat(document.getElementById('equipmentCost').value) || 0;
+    const otherCosts = parseFloat(document.getElementById('otherCosts').value) || 0;
+    
+    const expectedYield = parseFloat(document.getElementById('expectedYield').value) || 0;
+    const marketPrice = parseFloat(document.getElementById('marketPrice').value) || 0;
+    const qualityFactor = parseFloat(document.getElementById('qualityFactor').value) || 1;
+    
+    // Calculate totals
+    const totalCosts = (seedsCost + fertilizerCost + pesticideCost + laborCost + equipmentCost + otherCosts) * area;
+    const totalProduction = expectedYield * area * 10; // Convert tons to quintals
+    const totalRevenue = totalProduction * marketPrice * qualityFactor;
+    const netProfit = totalRevenue - totalCosts;
+    const profitMargin = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : 0;
+    
+    // Update display
+    document.getElementById('totalCosts').textContent = `₹${totalCosts.toLocaleString()}`;
+    document.getElementById('totalRevenue').textContent = `₹${totalRevenue.toLocaleString()}`;
+    document.getElementById('netProfit').textContent = `₹${netProfit.toLocaleString()}`;
+    document.getElementById('profitMargin').textContent = `${profitMargin}% margin`;
+    
+    // Update profit color and progress bar
+    const profitElement = document.getElementById('netProfit');
+    const profitBar = document.getElementById('profitBar');
+    
+    if (netProfit > 0) {
+        profitElement.className = 'fw-bold text-success';
+        profitBar.className = 'progress-bar bg-success';
+        profitBar.style.width = Math.min((profitMargin / 50) * 100, 100) + '%';
+    } else if (netProfit === 0) {
+        profitElement.className = 'fw-bold text-warning';
+        profitBar.className = 'progress-bar bg-warning';
+        profitBar.style.width = '50%';
+    } else {
+        profitElement.className = 'fw-bold text-danger';
+        profitBar.className = 'progress-bar bg-danger';
+        profitBar.style.width = '25%';
+    }
+}
+
+function resetCalculator() {
+    document.getElementById('costCalculatorForm').reset();
+    document.getElementById('area').value = '1';
+    document.getElementById('seedsCost').value = '5000';
+    document.getElementById('fertilizerCost').value = '8000';
+    document.getElementById('pesticideCost').value = '3000';
+    document.getElementById('laborCost').value = '15000';
+    document.getElementById('equipmentCost').value = '5000';
+    document.getElementById('otherCosts').value = '2000';
+    document.getElementById('expectedYield').value = '6';
+    document.getElementById('marketPrice').value = '2500';
+    calculateCostBenefit();
+}
+
+// Auto-calculate on input changes
+document.addEventListener('DOMContentLoaded', function() {
+    const inputs = document.querySelectorAll('#costCalculatorForm input, #costCalculatorForm select');
+    inputs.forEach(input => {
+        input.addEventListener('input', calculateCostBenefit);
+        input.addEventListener('change', calculateCostBenefit);
+    });
+    
+    // Load initial market prices
+    loadMarketPrices();
+    
+    // Calculate initial values
+    calculateCostBenefit();
+});
+
+// Update market price when crop type changes
+document.getElementById('cropType').addEventListener('change', loadMarketPrices);
+</script>
+{% endblock %}

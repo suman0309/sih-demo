@@ -1,0 +1,719 @@
+{% extends "base.html" %}
+
+{% block title %}AI Yield Prediction - CropAI Platform{% endblock %}
+
+{% block extra_head %}
+<!-- Three.js and animation libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+<style>
+    body {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+        font-family: 'Inter', sans-serif;
+        color: white;
+    }
+    
+    .prediction-hero {
+        height: 60vh;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        margin-top: 80px;
+    }
+    
+    .hero-canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+    
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 900;
+        background: linear-gradient(45deg, #ffffff, #10b981, #34d399);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+    }
+    
+    .prediction-form-container {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(30px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 30px;
+        padding: 3rem;
+        margin: 4rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .prediction-form-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(45deg, #10b981, #34d399, #6ee7b7, #10b981);
+        animation: shimmer 3s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { background-position: -200% center; }
+        100% { background-position: 200% center; }
+    }
+    
+    .form-section {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 20px;
+        padding: 2.5rem;
+        margin: 2rem 0;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .form-section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(16, 185, 129, 0.1);
+        border-color: rgba(16, 185, 129, 0.2);
+    }
+    
+    .section-icon {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(45deg, #10b981, #34d399);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #10b981;
+    }
+    
+    .form-control {
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        color: white;
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+    
+    .form-control:focus {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: #10b981;
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+        color: white;
+    }
+    
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .form-label {
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 600;
+        margin-bottom: 0.8rem;
+        font-size: 1rem;
+    }
+    
+    .prediction-button {
+        background: linear-gradient(45deg, #10b981, #059669);
+        border: none;
+        border-radius: 25px;
+        padding: 1.5rem 4rem;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 15px 40px rgba(16, 185, 129, 0.4);
+    }
+    
+    .prediction-button:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 20px 50px rgba(16, 185, 129, 0.5);
+    }
+    
+    .prediction-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .prediction-button:hover::before {
+        left: 100%;
+    }
+    
+    .ai-brain-animation {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(45deg, #10b981, #34d399);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        animation: pulse-brain 2s infinite, rotate 8s linear infinite;
+    }
+    
+    @keyframes pulse-brain {
+        0%, 100% { 
+            transform: scale(1);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+        50% { 
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
+        }
+    }
+    
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    .input-group {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+    
+    .input-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #10b981;
+        font-size: 1.1rem;
+        z-index: 1;
+    }
+    
+    .input-group .form-control {
+        padding-left: 3rem;
+    }
+    
+    .range-slider {
+        width: 100%;
+        height: 8px;
+        border-radius: 5px;
+        background: rgba(255, 255, 255, 0.1);
+        outline: none;
+        -webkit-appearance: none;
+        margin: 1rem 0;
+    }
+    
+    .range-slider::-webkit-slider-thumb {
+        appearance: none;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #10b981, #34d399);
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+    }
+    
+    .range-value {
+        background: linear-gradient(45deg, #10b981, #34d399);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        font-weight: 600;
+        display: inline-block;
+        margin-left: 1rem;
+        min-width: 60px;
+        text-align: center;
+    }
+    
+    .field-preview {
+        height: 200px;
+        position: relative;
+        border-radius: 20px;
+        overflow: hidden;
+        margin: 2rem 0;
+        border: 2px solid rgba(16, 185, 129, 0.2);
+    }
+    
+    .field-canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+    
+    .ai-tips {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    .tip-icon {
+        color: #10b981;
+        font-size: 1.2rem;
+        margin-right: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Prediction Hero -->
+<div class="prediction-hero">
+    <canvas class="hero-canvas" id="predictionCanvas"></canvas>
+    <div class="hero-content">
+        <h1 class="hero-title">AI Yield Prediction</h1>
+        <p class="lead">Harness the power of artificial intelligence to predict your crop yields</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Prediction Form -->
+    <div class="prediction-form-container">
+        <div class="ai-brain-animation">🧠</div>
+        
+        <form method="POST" id="predictionForm">
+            <div class="row">
+                <!-- Crop Information Section -->
+                <div class="col-md-6">
+                    <div class="form-section">
+                        <div class="section-icon">🌱</div>
+                        <h3 class="section-title">Crop Information</h3>
+                        
+                        <div class="input-group">
+                            <div class="input-icon">🌾</div>
+                            <label class="form-label">Crop Type</label>
+                            <select name="crop_type" class="form-control" required>
+                                <option value="">Select Crop Type</option>
+                                <option value="rice">Rice</option>
+                                <option value="wheat">Wheat</option>
+                                <option value="sugarcane">Sugarcane</option>
+                                <option value="cotton">Cotton</option>
+                                <option value="maize">Maize</option>
+                            </select>
+                        </div>
+                        
+                        <div class="input-group">
+                            <div class="input-icon">📏</div>
+                            <label class="form-label">Area (Hectares)</label>
+                            <input type="range" class="range-slider" id="areaSlider" 
+                                   min="0.1" max="50" step="0.1" value="1.0" 
+                                   oninput="updateRangeValue('area', this.value)">
+                            <input type="number" name="area" class="form-control" 
+                                   id="areaValue" value="1.0" step="0.1" min="0.1" 
+                                   oninput="updateSlider('areaSlider', this.value)">
+                            <span class="range-value" id="areaDisplay">1.0 ha</span>
+                        </div>
+                        
+                        <div class="input-group">
+                            <div class="input-icon">🏞️</div>
+                            <label class="form-label">Soil Condition</label>
+                            <textarea name="soil_condition" class="form-control" rows="3" 
+                                      placeholder="Describe soil type, drainage, organic matter..."></textarea>
+                        </div>
+                        
+                        <div class="field-preview">
+                            <canvas class="field-canvas" id="fieldPreview"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Environmental Factors Section -->
+                <div class="col-md-6">
+                    <div class="form-section">
+                        <div class="section-icon">🌦️</div>
+                        <h3 class="section-title">Environmental Factors</h3>
+                        
+                        <div class="input-group">
+                            <div class="input-icon">🌧️</div>
+                            <label class="form-label">Annual Rainfall (mm)</label>
+                            <input type="range" class="range-slider" id="rainfallSlider" 
+                                   min="0" max="3000" step="10" value="1000" 
+                                   oninput="updateRangeValue('rainfall', this.value)">
+                            <input type="number" name="rainfall" class="form-control" 
+                                   id="rainfallValue" value="1000" min="0" 
+                                   oninput="updateSlider('rainfallSlider', this.value)">
+                            <span class="range-value" id="rainfallDisplay">1000 mm</span>
+                        </div>
+                        
+                        <div class="input-group">
+                            <div class="input-icon">🌡️</div>
+                            <label class="form-label">Average Temperature (°C)</label>
+                            <input type="range" class="range-slider" id="tempSlider" 
+                                   min="5" max="45" step="0.5" value="25" 
+                                   oninput="updateRangeValue('temperature', this.value)">
+                            <input type="number" name="temperature" class="form-control" 
+                                   id="tempValue" value="25" step="0.5" min="5" max="45" 
+                                   oninput="updateSlider('tempSlider', this.value)">
+                            <span class="range-value" id="tempDisplay">25°C</span>
+                        </div>
+                        
+                        <div class="input-group">
+                            <div class="input-icon">⚗️</div>
+                            <label class="form-label">Soil pH Level</label>
+                            <input type="range" class="range-slider" id="phSlider" 
+                                   min="3" max="10" step="0.1" value="7.0" 
+                                   oninput="updateRangeValue('soil_ph', this.value)">
+                            <input type="number" name="soil_ph" class="form-control" 
+                                   id="phValue" value="7.0" step="0.1" min="3" max="10" 
+                                   oninput="updateSlider('phSlider', this.value)">
+                            <span class="range-value" id="phDisplay">7.0 pH</span>
+                        </div>
+                        
+                        <div class="input-group">
+                            <div class="input-icon">🧪</div>
+                            <label class="form-label">Fertilizer Usage (kg/hectare)</label>
+                            <input type="range" class="range-slider" id="fertilizerSlider" 
+                                   min="0" max="200" step="5" value="50" 
+                                   oninput="updateRangeValue('fertilizer_usage', this.value)">
+                            <input type="number" name="fertilizer_usage" class="form-control" 
+                                   id="fertilizerValue" value="50" min="0" 
+                                   oninput="updateSlider('fertilizerSlider', this.value)">
+                            <span class="range-value" id="fertilizerDisplay">50 kg/ha</span>
+                        </div>
+                        
+                        <div class="input-group">
+                            <div class="input-icon">🐛</div>
+                            <label class="form-label">Pest Control Level (1-10)</label>
+                            <select name="pest_control" class="form-control" required>
+                                <option value="">Select Control Level</option>
+                                <option value="1">1 - No pest control</option>
+                                <option value="3">3 - Basic pest control</option>
+                                <option value="5" selected>5 - Moderate pest control</option>
+                                <option value="7">7 - Good pest control</option>
+                                <option value="10">10 - Excellent pest control</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Weather Condition -->
+            <div class="form-section">
+                <div class="section-icon">☁️</div>
+                <h3 class="section-title">Weather Conditions</h3>
+                
+                <div class="input-group">
+                    <div class="input-icon">🌤️</div>
+                    <label class="form-label">Current Weather Pattern</label>
+                    <input type="text" name="weather_condition" class="form-control" 
+                           placeholder="e.g., Monsoon season, dry spell, moderate rainfall">
+                </div>
+            </div>
+            
+            <!-- AI Tips -->
+            <div class="ai-tips">
+                <h4><span class="tip-icon">💡</span>AI Prediction Tips</h4>
+                <ul class="mb-0">
+                    <li>More accurate input data leads to better predictions</li>
+                    <li>Consider recent soil testing results for pH values</li>
+                    <li>Include seasonal weather patterns in your description</li>
+                    <li>Our AI model learns from thousands of similar farms</li>
+                </ul>
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="text-center mt-4">
+                <button type="submit" class="prediction-button">
+                    <i class="fas fa-brain"></i> Generate AI Prediction
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Initialize 3D scenes and animations
+document.addEventListener('DOMContentLoaded', function() {
+    initPredictionHero();
+    initFieldPreview();
+    initFormAnimations();
+});
+
+function initPredictionHero() {
+    const canvas = document.getElementById('predictionCanvas');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
+    
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    renderer.setClearColor(0x000000, 0);
+    
+    // Create DNA helix-like structure for AI
+    const helixGroup = new THREE.Group();
+    
+    for(let i = 0; i < 100; i++) {
+        const angle = (i / 100) * Math.PI * 8;
+        const y = (i / 100) * 10 - 5;
+        
+        // Create spheres for helix points
+        const geometry = new THREE.SphereGeometry(0.05, 8, 8);
+        const material = new THREE.MeshBasicMaterial({ 
+            color: i % 2 === 0 ? 0x10b981 : 0x34d399,
+            transparent: true,
+            opacity: 0.8
+        });
+        
+        const sphere = new THREE.Mesh(geometry, material);
+        sphere.position.set(
+            Math.cos(angle) * 1.5,
+            y,
+            Math.sin(angle) * 1.5
+        );
+        
+        helixGroup.add(sphere);
+        
+        // Add connecting lines
+        if(i > 0) {
+            const lineGeometry = new THREE.BufferGeometry();
+            const points = [
+                helixGroup.children[i-1].position,
+                sphere.position
+            ];
+            lineGeometry.setFromPoints(points);
+            
+            const lineMaterial = new THREE.LineBasicMaterial({ 
+                color: 0x10b981,
+                transparent: true,
+                opacity: 0.3
+            });
+            
+            const line = new THREE.Line(lineGeometry, lineMaterial);
+            helixGroup.add(line);
+        }
+    }
+    
+    scene.add(helixGroup);
+    camera.position.z = 8;
+    
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        helixGroup.rotation.y += 0.01;
+        helixGroup.rotation.x = Math.sin(Date.now() * 0.001) * 0.2;
+        
+        renderer.render(scene, camera);
+    }
+    
+    animate();
+}
+
+function initFieldPreview() {
+    const canvas = document.getElementById('fieldPreview');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
+    
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    renderer.setClearColor(0x000000, 0);
+    
+    // Create field terrain
+    const fieldGeometry = new THREE.PlaneGeometry(6, 6, 20, 20);
+    const fieldMaterial = new THREE.MeshBasicMaterial({ 
+        color: 0x2d5a27, 
+        wireframe: true,
+        transparent: true,
+        opacity: 0.6
+    });
+    
+    const field = new THREE.Mesh(fieldGeometry, fieldMaterial);
+    field.rotation.x = -Math.PI / 2;
+    scene.add(field);
+    
+    // Add crops with different growth stages
+    const crops = [];
+    for(let i = 0; i < 30; i++) {
+        const cropHeight = Math.random() * 0.5 + 0.2;
+        const cropGeometry = new THREE.ConeGeometry(0.05, cropHeight, 6);
+        const cropMaterial = new THREE.MeshBasicMaterial({ 
+            color: new THREE.Color().setHSL(0.25 + Math.random() * 0.1, 0.7, 0.5)
+        });
+        
+        const crop = new THREE.Mesh(cropGeometry, cropMaterial);
+        crop.position.set(
+            (Math.random() - 0.5) * 5,
+            cropHeight / 2,
+            (Math.random() - 0.5) * 5
+        );
+        
+        crops.push(crop);
+        scene.add(crop);
+    }
+    
+    camera.position.set(0, 4, 6);
+    camera.lookAt(0, 0, 0);
+    
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        // Gentle wind effect
+        crops.forEach((crop, index) => {
+            crop.rotation.z = Math.sin(Date.now() * 0.003 + index) * 0.1;
+        });
+        
+        field.rotation.z += 0.002;
+        
+        renderer.render(scene, camera);
+    }
+    
+    animate();
+}
+
+function initFormAnimations() {
+    // Animate form sections
+    gsap.from('.form-section', {
+        opacity: 0,
+        y: 50,
+        duration: 1,
+        stagger: 0.2,
+        ease: 'power3.out',
+        delay: 0.5
+    });
+    
+    // Animate section icons
+    gsap.from('.section-icon', {
+        opacity: 0,
+        scale: 0,
+        duration: 1,
+        stagger: 0.1,
+        ease: 'back.out(1.7)',
+        delay: 1
+    });
+    
+    // Form submission animation
+    document.getElementById('predictionForm').addEventListener('submit', function(e) {
+        const button = document.querySelector('.prediction-button');
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing with AI...';
+        button.style.background = 'linear-gradient(45deg, #f59e0b, #d97706)';
+        
+        // Create success particles
+        createSuccessParticles();
+    });
+}
+
+function updateRangeValue(fieldName, value) {
+    document.getElementById(fieldName + 'Value').value = value;
+    
+    let unit = '';
+    switch(fieldName) {
+        case 'area': unit = ' ha'; break;
+        case 'rainfall': unit = ' mm'; break;
+        case 'temperature': unit = '°C'; break;
+        case 'soil_ph': unit = ' pH'; break;
+        case 'fertilizer_usage': unit = ' kg/ha'; break;
+    }
+    
+    document.getElementById(fieldName + 'Display').textContent = value + unit;
+    
+    // Update field preview based on values
+    updateFieldPreview();
+}
+
+function updateSlider(sliderId, value) {
+    document.getElementById(sliderId).value = value;
+}
+
+function updateFieldPreview() {
+    // This could update the 3D field preview based on input values
+    // For now, just add visual feedback
+    const preview = document.getElementById('fieldPreview');
+    preview.style.borderColor = 'rgba(16, 185, 129, 0.5)';
+    
+    setTimeout(() => {
+        preview.style.borderColor = 'rgba(16, 185, 129, 0.2)';
+    }, 500);
+}
+
+function createSuccessParticles() {
+    const container = document.querySelector('.prediction-form-container');
+    
+    for(let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.style.position = 'absolute';
+        particle.style.width = '4px';
+        particle.style.height = '4px';
+        particle.style.background = '#10b981';
+        particle.style.borderRadius = '50%';
+        particle.style.pointerEvents = 'none';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        
+        container.appendChild(particle);
+        
+        gsap.to(particle, {
+            y: -100,
+            opacity: 0,
+            duration: 2,
+            ease: 'power2.out',
+            onComplete: () => particle.remove()
+        });
+    }
+}
+
+// Auto-resize canvas
+window.addEventListener('resize', () => {
+    const canvases = document.querySelectorAll('canvas');
+    canvases.forEach(canvas => {
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+    });
+});
+
+// Real-time validation feedback
+document.querySelectorAll('.form-control').forEach(input => {
+    input.addEventListener('input', function() {
+        if(this.value) {
+            this.style.borderColor = '#10b981';
+            this.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.2)';
+        } else {
+            this.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            this.style.boxShadow = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}

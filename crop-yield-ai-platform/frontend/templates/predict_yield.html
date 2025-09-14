@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Predict Crop Yield - Crop Yield AI Platform{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-center mb-4">
+                <i class="fas fa-chart-line text-success"></i> AI-Powered Crop Yield Prediction
+            </h2>
+        </div>
+    </div>
+    
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Enter Field and Crop Details</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" id="predictionForm">
+                        <div class="row">
+                            <!-- Basic Crop Information -->
+                            <div class="col-md-6">
+                                <h6 class="text-success mb-3">
+                                    <i class="fas fa-seedling"></i> Crop Information
+                                </h6>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Crop Type *</label>
+                                    <select name="crop_type" class="form-control" required>
+                                        <option value="rice">Rice</option>
+                                        <option value="wheat">Wheat</option>
+                                        <option value="sugarcane">Sugarcane</option>
+                                        <option value="cotton">Cotton</option>
+                                        <option value="maize">Maize</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Area (Hectares) *</label>
+                                    <input type="number" name="area" class="form-control" 
+                                           step="0.1" min="0.1" value="1.0" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Soil Condition</label>
+                                    <textarea name="soil_condition" class="form-control" rows="3" 
+                                              placeholder="e.g., Well-drained sandy loam, pH 6.8, organic matter 2.5%"></textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Weather Condition</label>
+                                    <input type="text" name="weather_condition" class="form-control" 
+                                           placeholder="e.g., Monsoon season, adequate rainfall">
+                                </div>
+                            </div>
+                            
+                            <!-- Environmental Factors -->
+                            <div class="col-md-6">
+                                <h6 class="text-success mb-3">
+                                    <i class="fas fa-cloud-rain"></i> Environmental Factors
+                                </h6>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Annual Rainfall (mm) *</label>
+                                    <input type="number" name="rainfall" class="form-control" 
+                                           min="0" value="1000" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Average Temperature (°C) *</label>
+                                    <input type="number" name="temperature" class="form-control" 
+                                           step="0.1" min="0" max="50" value="25" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Soil pH *</label>
+                                    <input type="number" name="soil_ph" class="form-control" 
+                                           step="0.1" min="0" max="14" value="7.0" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Fertilizer Usage (kg/hectare) *</label>
+                                    <input type="number" name="fertilizer_usage" class="form-control" 
+                                           min="0" value="50" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Pest Control Level (1-10) *</label>
+                                    <select name="pest_control" class="form-control" required>
+                                        <option value="1">1 - No pest control</option>
+                                        <option value="3">3 - Basic pest control</option>
+                                        <option value="5" selected>5 - Moderate pest control</option>
+                                        <option value="7">7 - Good pest control</option>
+                                        <option value="10">10 - Excellent pest control</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-success btn-lg px-5">
+                                <i class="fas fa-chart-bar"></i> Predict Yield
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- AI Features Info -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-robot"></i> AI Features Available After Prediction
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <i class="fas fa-chart-bar text-info mb-2" style="font-size: 2rem;"></i>
+                                <h6>Yield Scenarios</h6>
+                                <p class="text-muted small">Multiple yield scenarios based on different conditions</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <i class="fas fa-flask text-info mb-2" style="font-size: 2rem;"></i>
+                                <h6>Smart Recommendations</h6>
+                                <p class="text-muted small">AI-powered fertilizer and pesticide suggestions</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <i class="fas fa-cloud-rain text-info mb-2" style="font-size: 2rem;"></i>
+                                <h6>Weather Alerts</h6>
+                                <p class="text-muted small">Real-time weather warnings and suggestions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('predictionForm').addEventListener('submit', function(e) {
+    const submitBtn = document.querySelector('button[type="submit"]');
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+    submitBtn.disabled = true;
+});
+</script>
+{% endblock %}
